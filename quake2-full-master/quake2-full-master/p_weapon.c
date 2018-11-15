@@ -250,6 +250,7 @@ void NoAmmoWeaponChange (edict_t *ent)
 		ent->client->newweapon = FindItem ("shotgun");
 		return;
 	}
+	//if this is removed, the game crashes
 	ent->client->newweapon = FindItem ("blaster");
 }
 
@@ -293,6 +294,17 @@ void Use_Weapon (edict_t *ent, gitem_t *item)
 {
 	int			ammo_index;
 	gitem_t		*ammo_item;
+
+	/*
+	char *weaponame = NULL;
+	weaponame = (char*)malloc(sizeof(char)* 8);
+	if (!weaponame)
+	{
+
+	}
+	memset(weaponame, 0, sizeof(char)* 8);
+	snprintf(weaponame, 8, "blaster");
+	*/
 
 	// see if we're already using it
 	if (item == ent->client->pers.weapon)
@@ -706,7 +718,13 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_grenade (ent, start, forward, damage, 600, 2.5, radius);
+	fire_grenade(ent, start, forward, damage, 1200, 0.5, radius);
+	//int kick = 0;
+	//fire_rail(ent, start, forward, damage, kick);
+	float	damage_radius = 1000;
+	int radius_damage = 120;
+	fire_rocket(ent, start, forward, damage, 650, damage_radius, radius_damage);
+	//fire_bfg(ent, start, forward, damage, 400, damage_radius);
 
 	gi.WriteByte (svc_muzzleflash);
 	gi.WriteShort (ent-g_edicts);
@@ -723,8 +741,10 @@ void weapon_grenadelauncher_fire (edict_t *ent)
 
 void Weapon_GrenadeLauncher (edict_t *ent)
 {
-	static int	pause_frames[]	= {34, 51, 59, 0};
-	static int	fire_frames[]	= {6, 0};
+	//static int	pause_frames[]	= {34, 51, 59, 0};
+	//static int	fire_frames[]	= {6, 0};
+	static int	pause_frames[] = { 20, 20, 20, 0 };
+	static int	fire_frames[] = { 6, 12 };
 
 	Weapon_Generic (ent, 5, 16, 59, 64, pause_frames, fire_frames, weapon_grenadelauncher_fire);
 }
@@ -800,17 +820,26 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	vec3_t	start;
 	vec3_t	offset;
 
-	if (is_quad)
+	//if (is_quad)
 		damage *= 4;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
-	VectorSet(offset, 24, 8, ent->viewheight-8);
+	VectorSet(offset, 24, -5, ent->viewheight-8);
 	VectorAdd (offset, g_offset, offset);
 	P_ProjectSource (ent->client, ent->s.origin, offset, forward, right, start);
 
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	fire_blaster (ent, start, forward, damage, 50, effect, hyper);
+	
+	/*
+	int kick = 0;
+	fire_rail(ent, start, forward, damage, kick);
+	float	damage_radius = 1000;
+	int radius_damage = 120;
+	fire_rocket(ent, start, forward, damage, 650, damage_radius, radius_damage);
+	fire_bfg(ent, start, forward, damage, 400, damage_radius);
+	*/
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
@@ -839,8 +868,10 @@ void Weapon_Blaster_Fire (edict_t *ent)
 
 void Weapon_Blaster (edict_t *ent)
 {
-	static int	pause_frames[]	= {19, 32, 0};
-	static int	fire_frames[]	= {5, 0};
+	//changed this
+	static int	pause_frames[]	= {10, 20, 10};
+	//static int	fire_frames[] = { 5, 0 };
+	static int	fire_frames[]	= {5, 5};
 
 	Weapon_Generic (ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
 }

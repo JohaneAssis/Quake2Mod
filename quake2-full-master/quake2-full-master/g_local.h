@@ -215,7 +215,7 @@ typedef struct
 typedef struct gitem_s
 {
 	char		*classname;	// spawning name
-	qboolean	(*pickup)(struct edict_s *ent, struct edict_s *other);
+	qboolean	(*pickup)(struct edict_s *ent, struct edict_s *other); //how to declare a function pointer
 	void		(*use)(struct edict_s *ent, struct gitem_s *item);
 	void		(*drop)(struct edict_s *ent, struct gitem_s *item);
 	void		(*weaponthink)(struct edict_s *ent);

@@ -1112,7 +1112,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 
 //======================================================================
 
-gitem_t	itemlist[] = 
+gitem_t	itemlist[] = //the beginning of every item in quake
 {
 	{
 		NULL
