@@ -1542,7 +1542,7 @@ always owned, never in the world
 		IT_WEAPON,
 		NULL,
 		0,
-		"weapons/blastf1a.wav misc/lastfly.wav"
+		"weapons/hgrenlb1b.wav misc/fhit3.wav"
 	},
 
 	//

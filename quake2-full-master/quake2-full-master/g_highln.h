@@ -1,6 +1,7 @@
 #define SWORD_NORMAL_DAMAGE 100
 #define SWORD_DEATHMATCH_DAMAGE 150
 #define SWORD_KICK 500
+#define SWORD_RANGE 35
 
 void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick)
 {
@@ -11,9 +12,11 @@ void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	vec3_t          right;
 	vec3_t          up;
 	vec3_t          end;
+	
+	VectorMA(start, SWORD_RANGE, aimdir, end);
+	tr = gi.trace(self->s.origin, NULL, NULL, end, self, MASK_SHOT);
 
-	tr = gi.trace(self->s.origin, NULL, NULL, start, self, MASK_SHOT);
-
+	/*
 	if (!(tr.fraction < 1.0))
 	{
 		vectoangles(aimdir, dir);
@@ -21,6 +24,7 @@ void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 
 		VectorMA(start, 8192, forward, end);
 	}
+	*/
 
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
 	{
@@ -29,25 +33,23 @@ void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 			if (tr.ent->takedamage)
 			{
 				T_Damage(tr.ent, self, self, aimdir, tr.endpos, tr.plane.normal, damage, kick, 0, 0);
+
+				gi.sound(self, CHAN_AUTO, gi.soundindex("misc/fhit3.wav"), 1, ATTN_NORM, 0);
 			}
 			else
 			{
-				if (strncmp(tr.surface->name, "sky", 3) != 0)
-				{
-					gi.WriteByte(svc_temp_entity);
-					gi.WriteByte(TE_GUNSHOT);
-					gi.WritePosition(tr.endpos);
-					gi.WriteDir(tr.plane.normal);
-					gi.multicast(tr.endpos, MULTICAST_PVS);
-
-					if (self->client)
-						PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
-				}
+				gi.WriteByte(svc_temp_entity);
+				gi.WriteByte(TE_SPARKS);
+				gi.WritePosition(tr.endpos);
+				gi.WriteDir(tr.plane.normal);
+				gi.multicast(tr.endpos, MULTICAST_PVS);
+				
+				gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/grenlb1b.wav"), 1, ATTN_NORM, 0);
 			}
 		}
 	}
 	return;
-}
+}	
 
 void sword_attack(edict_t *ent, vec3_t g_offset, int damage)
 {

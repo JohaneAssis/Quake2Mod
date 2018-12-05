@@ -85,7 +85,7 @@ static void SP_CreateCoopSpots (edict_t *self)
 
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 The normal starting point for a level.
-*/
+*/ //singleplayer
 void SP_info_player_start(edict_t *self)
 {
 	if (!coop->value)
@@ -100,7 +100,7 @@ void SP_info_player_start(edict_t *self)
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32)
 potential spawning position for deathmatch games
-*/
+*/ //mulitplayer
 void SP_info_player_deathmatch(edict_t *self)
 {
 	if (!deathmatch->value)
@@ -364,6 +364,11 @@ void ClientObituary (edict_t *self, edict_t *inflictor, edict_t *attacker)
 				message = "tried to invade";
 				message2 = "'s personal space";
 				break;
+				/*
+			case MOD_POSION:
+				message = "was posioned by";
+				break;
+				*/
 			}
 			if (message)
 			{
@@ -1103,6 +1108,11 @@ void PutClientInServer (edict_t *ent)
 		char		userinfo[MAX_INFO_STRING];
 
 		resp = client->resp;
+		/*
+		ent->poisonerEx = NULL;
+		ent->poisonExStrength = 0;
+		ent->poisonExTime = 0;
+		*/
 		memcpy (userinfo, client->pers.userinfo, sizeof(userinfo));
 		InitClientPersistant (client);
 		ClientUserinfoChanged (ent, userinfo);
@@ -1580,6 +1590,18 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			level.exitintermission = true;
 		return;
 	}
+
+	/*
+	if (ent->poisonExStrength > 0){
+		if (ent->poisonExTime > 0){
+			ent->poisonExTime -= 0.1;
+		}
+		else{
+			ent->poisonExTime = 10;
+			T_Damage(ent, ent->poisonerEx, ent->poisonerEx, ent->s.origin, ent->s.origin, ent->s.origin, ent->poisonExStrength, 0, 0, MOD_POSION);
+		}
+	}
+	*/
 
 	pm_passent = ent;
 
