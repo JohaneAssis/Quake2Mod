@@ -602,18 +602,22 @@ void InitClientPersistant (gclient_t *client)
 	item = FindItem("Blaster");
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
+	
+	item = FindItem("Shotgun");
+	client->pers.selected_item = ITEM_INDEX(item);
+	client->pers.inventory[client->pers.selected_item] = 2;	
 
 	client->pers.weapon = item;
 
 	client->pers.health			= 100;
 	client->pers.max_health		= 100;
 
-	client->pers.max_bullets	= 200;
-	client->pers.max_shells		= 100;
-	client->pers.max_rockets	= 50;
-	client->pers.max_grenades	= 50;
-	client->pers.max_cells		= 200;
-	client->pers.max_slugs		= 50;
+	client->pers.max_bullets	= 1000;//200;
+	client->pers.max_shells		= 1000;//100;
+	client->pers.max_rockets	= 1000;//50;
+	client->pers.max_grenades	= 1000;//50;
+	client->pers.max_cells		= 1000;//200;
+	client->pers.max_slugs		= 1000;//50;
 
 	client->pers.connected = true;
 }

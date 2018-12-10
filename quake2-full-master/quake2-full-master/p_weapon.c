@@ -818,6 +818,9 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	vec3_t	forward, right;
 	vec3_t	start;
 	vec3_t	offset;
+	float	radius;
+
+	radius = 10;
 
 	//if (is_quad)
 		damage *= 4;
@@ -829,7 +832,9 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 50, effect, hyper);
+	fire_grenade(ent, start, forward, damage, 100, 2, radius);
+
+	//fire_blaster (ent, start, forward, damage, 50, effect, hyper);
 	
 	/*
 	int kick = 0;
@@ -868,11 +873,12 @@ void Weapon_Blaster_Fire (edict_t *ent)
 void Weapon_Blaster (edict_t *ent)
 {
 	//changed this
-	static int	pause_frames[]	= {10, 20, 10};
-	//static int	fire_frames[] = { 5, 0 };
-	static int	fire_frames[]	= {5, 5};
+	static int	pause_frames[] = { 19, 32, 0 };
+	//static int	pause_frames[]	= { 10, 20, 10 };
+	static int	fire_frames[] = { 5, 0 };
+	//static int	fire_frames[]	= { 5, 5 };
 
-	Weapon_Generic (ent, 4, 8, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
+	Weapon_Generic (ent, 4, 5, 52, 55, pause_frames, fire_frames, Weapon_Blaster_Fire);
 }
 
 
@@ -1226,6 +1232,17 @@ void weapon_shotgun_fire (edict_t *ent)
 	{
 		fire_shotgun(ent, start, forward, damage, kick, 500, 500, DEFAULT_SHOTGUN_COUNT, MOD_SHOTGUN);
 		ent->flags ^= FL_GODMODE;
+		if (!(ent->flags & FL_GODMODE))
+		{
+			//godmode off
+			gi.cprintf(ent, PRINT_HIGH, "Stopped Blocking\n");
+		}
+		else
+		{
+			//godmode on
+			gi.cprintf(ent, PRINT_HIGH, "Currently Blocking\n");
+		}	
+
 	}
 
 	// send muzzle flash

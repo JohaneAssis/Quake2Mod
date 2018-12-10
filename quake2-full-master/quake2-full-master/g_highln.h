@@ -75,8 +75,10 @@ void Weapon_Sword_Fire(edict_t *ent)
 		damage = SWORD_DEATHMATCH_DAMAGE;
 	else
 		damage = SWORD_NORMAL_DAMAGE;
+	
 	sword_attack(ent, vec3_origin, damage);
 	ent->client->ps.gunframe++;
+	gi.cprintf(ent, PRINT_HIGH, "Sword Swung Normally\n");
 }
 
 void Weapon_Sword(edict_t *ent)
