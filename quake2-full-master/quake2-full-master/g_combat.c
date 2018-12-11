@@ -355,6 +355,88 @@ qboolean CheckTeamDamage (edict_t *targ, edict_t *attacker)
 	return false;
 }
 
+//for damage at certain body parts
+#define VectorEmpty(a)  ((a[0] == 0) && (a[1] == 0) && (a[2] == 0))
+#define IsIn(x,a,b)     ((x) >= (a) && (x) <= (b))
+#define LEG_DAMAGE     (height/2.0)-abs(targ->mins[2])-3
+#define STOMACH_DAMAGE (height/1.6)-abs(targ->mins[2])
+#define CHEST_DAMAGE   (height/1.4)-abs(targ->mins[2])
+#define NECK_DAMAGE    (height/1.1)-abs(targ->mins[2])
+#define HEAD_DAMAGE    (height/0.7)-abs(targ->mins[2])
+#define ARM1_DAMAGE    (height/1.4)-abs(targ->mins)+8  // Should go about between the chest and stomach, and going over by 8
+#define ARM2_DAMAGE    (height/1.4)-abs(targ->mins)-8 // Should go about between the chest and stomach, and going over by -8
+
+//==============================================================
+float location_scaling( edict_t *targ, vec3_t point, float damage, int mod) {
+	float z_rel, height;
+	edict_t *ent;
+
+	if (!(targ->flags & FL_GODMODE))
+	{
+		if (!(targ->deadflag == DEAD_DEAD))
+		{
+			if (!VectorEmpty(point))
+			{
+				if (IsIn(mod, MOD_BLASTER, MOD_RAILGUN))
+				{
+					height = abs(targ->mins[2]) + targ->maxs[2];
+					z_rel = point[2] - targ->s.origin[2];
+					if (z_rel < LEG_DAMAGE)
+					{
+						gi.cprintf(ent, PRINT_HIGH, "Leg Hit\n");
+						return 0.35;  // Scale down by 2/3
+					}
+					else
+					{
+						if (z_rel < STOMACH_DAMAGE)
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Stomach Hit\n");
+							return 0.66;  // Scale down by 1/3
+						}
+						else
+						{
+							if (z_rel < CHEST_DAMAGE)
+							{
+								gi.cprintf(ent, PRINT_HIGH, "Chest Hit\n");
+								return 1.20;  // Scale up by 1/5
+							}
+						}
+						if (z_rel < NECK_DAMAGE)
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Neck Hit\n");
+							return 3.00;  // Scale up by 3X (Come on, a neck shot atleast has to kill;))
+						}
+						if (z_rel < HEAD_DAMAGE)
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Head Hit\n");
+							return 8.00;  // Scale up by 8X (Pretty much dead...)
+						}
+						if (z_rel < ARM1_DAMAGE)
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Arm Hit\n");
+							return .66;  // Scale down by 1/3
+						}
+						if (z_rel < ARM2_DAMAGE)
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Arm Hit\n");
+							return .66;  // Scale down by 1/3
+						}
+						else
+						{
+							gi.cprintf(ent, PRINT_HIGH, "Hit\n");
+							return 1.0;
+						}
+					} // Normal Damage if hit anywhere else
+
+					gi.cprintf(ent, PRINT_HIGH, "Hit\n");
+					return 1.0; // keep damage the same..
+				}
+			}
+		}
+	}
+}
+
+
 void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir, vec3_t point, vec3_t normal, int damage, int knockback, int dflags, int mod)
 {
 	gclient_t	*client;
@@ -366,6 +448,9 @@ void T_Damage (edict_t *targ, edict_t *inflictor, edict_t *attacker, vec3_t dir,
 
 	if (!targ->takedamage)
 		return;
+
+	//damage changed based on the location (leg,stomach,chest,head)
+	damage *= location_scaling(targ, point, damage, mod);
 
 	// friendly fire avoidance
 	// if enabled you can't hurt teammates (but you can hurt yourself)
