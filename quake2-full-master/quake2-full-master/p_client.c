@@ -1514,17 +1514,6 @@ void ClientDisconnect (edict_t *ent)
 	int		playernum;
 
 	if (!ent->client)
-		/*
-	{
-		VectorCopy(pm.viewangles, client->v_angles);
-		VectorCopy(pm.viewangles, client->ps.viewangles);
-	}
-	if (ucmd->forwardmove != 0 || ucmd->sidemove != 0 && ent->svflags & SVF_NOCLIENT)
-	{
-		ent->svflags &= ~SVF_NOCLIENT;
-	}
-	gi.linkentity(ent);
-	*/
 		return;
 
 	gi.bprintf (PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);

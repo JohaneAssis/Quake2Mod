@@ -383,14 +383,14 @@ float location_scaling( edict_t *targ, vec3_t point, float damage, int mod) {
 					if (z_rel < LEG_DAMAGE)
 					{
 						gi.cprintf(ent, PRINT_HIGH, "Leg Hit 1 dmg\n");
-						return 0.35;  // Scale down by 2/3
+						return 0.33;  // Scale down by 2/3
 					}
 					else
 					{
 						if (z_rel < STOMACH_DAMAGE)
 						{
 							gi.cprintf(ent, PRINT_HIGH, "Stomach Hit 2 dmg\n");
-							return 0.66;  // Scale down by 1/3
+							return 1;  // Scale down by 1/3
 						}
 						else
 						{
@@ -412,22 +412,22 @@ float location_scaling( edict_t *targ, vec3_t point, float damage, int mod) {
 						}
 						if (z_rel < ARM1_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
+							//gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
 							return .66;  // Scale down by 1/3
 						}
 						if (z_rel < ARM2_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
+							//gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
 							return .66;  // Scale down by 1/3
 						}
 						else
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Hit 3 dmg\n");
+							//gi.cprintf(ent, PRINT_HIGH, "Hit 3 dmg\n");
 							return 1.0;
 						}
 					} // Normal Damage if hit anywhere else
 
-					gi.cprintf(ent, PRINT_HIGH, "Hit\n");
+					//gi.cprintf(ent, PRINT_HIGH, "Hit\n");
 					return 1.0; // keep damage the same..
 				}
 			}

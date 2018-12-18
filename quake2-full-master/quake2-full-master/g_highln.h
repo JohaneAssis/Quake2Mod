@@ -84,7 +84,6 @@ void Weapon_Sword_Fire(edict_t *ent)
 	
 	sword_attack(ent, vec3_origin, damage);
 	ent->client->ps.gunframe++;
-	//gi.cprintf(ent, PRINT_CHAT, "Sword Swung Normally\n");
 }
 
 void Weapon_Sword(edict_t *ent)
