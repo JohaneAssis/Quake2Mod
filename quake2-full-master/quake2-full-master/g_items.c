@@ -33,7 +33,9 @@ static int	power_shield_index;
 #define HEALTH_TIMED		2
 
 void Use_Quad (edict_t *ent, gitem_t *item);
+void Use_Power2(edict_t *ent, gitem_t *item);
 static int	quad_drop_timeout_hack;
+static int power2TimeOut;
 
 //======================================================================
 
@@ -156,10 +158,14 @@ qboolean Pickup_Powerup (edict_t *ent, edict_t *other)
 	{
 		if (!(ent->spawnflags & DROPPED_ITEM) )
 			SetRespawn (ent, ent->item->quantity);
-		if (((int)dmflags->value & DF_INSTANT_ITEMS) || ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)))
+		if (((int)dmflags->value & DF_INSTANT_ITEMS) || ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM)) || (ent->item->use == Use_Power2))
 		{
 			if ((ent->item->use == Use_Quad) && (ent->spawnflags & DROPPED_PLAYER_ITEM))
 				quad_drop_timeout_hack = (ent->nextthink - level.time) / FRAMETIME;
+			if ((ent->item->use == Use_Power2))
+			{
+				power2TimeOut = (ent->nextthink - level.time) / FRAMETIME;
+			}
 			ent->item->use (other, ent->item);
 		}
 	}
@@ -190,6 +196,36 @@ qboolean Pickup_Adrenaline (edict_t *ent, edict_t *other)
 
 	return true;
 }
+
+qboolean Pickup_Power1 (edict_t *ent, edict_t *other)
+{
+	if (!deathmatch->value)
+		other->max_health += 50;
+
+	if (other->health < other->max_health)
+		other->health = other->max_health;
+
+	/*if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+		SetRespawn(ent, ent->item->quantity);
+	*/
+	return true;
+}
+
+/*
+qboolean Pickup_Power2(edict_t *ent, edict_t *other)
+{
+	if (!deathmatch->value)
+		other->max_health += 50;
+
+	if (other->health < other->max_health)
+		other->health = other->max_health;
+
+	//if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
+	//SetRespawn(ent, ent->item->quantity);
+	
+	return true;
+}
+*/
 
 qboolean Pickup_AncientHead (edict_t *ent, edict_t *other)
 {
@@ -330,6 +366,31 @@ void Use_Quad (edict_t *ent, gitem_t *item)
 	{
 		timeout = quad_drop_timeout_hack;
 		quad_drop_timeout_hack = 0;
+	}
+	else
+	{
+		timeout = 300;
+	}
+
+	if (ent->client->quad_framenum > level.framenum)
+		ent->client->quad_framenum += timeout;
+	else
+		ent->client->quad_framenum = level.framenum + timeout;
+
+	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
+}
+
+void Use_Power2(edict_t *ent, gitem_t *item)
+{
+	int		timeout;
+
+	ent->client->pers.inventory[ITEM_INDEX(item)]--;
+	ValidateSelectedItem(ent);
+
+	if (power2TimeOut)
+	{
+		timeout = power2TimeOut;
+		power2TimeOut = 0;
 	}
 	else
 	{
@@ -1075,7 +1136,7 @@ void SpawnItem (edict_t *ent, gitem_t *item)
 		}
 		if ( (int)dmflags->value & DF_NO_HEALTH )
 		{
-			if (item->pickup == Pickup_Health || item->pickup == Pickup_Adrenaline || item->pickup == Pickup_AncientHead)
+			if (item->pickup == Pickup_Health || item->pickup == Pickup_Adrenaline || item->pickup == Pickup_AncientHead || item -> pickup == Pickup_Power1)
 			{
 				G_FreeEdict (ent);
 				return;
@@ -1303,7 +1364,7 @@ always owned, never in the world
 		"misc/w_pkup.wav",
 		"models/weapons/g_shotg/tris.md2", EF_ROTATE,
 		"models/weapons/v_shotg/tris.md2",
-/* icon */		"w_shotgun",
+		/* icon */		"i_powershield",
 /* pickup */	"Shotgun",
 		0,
 		1,
@@ -1533,8 +1594,10 @@ always owned, never in the world
 		"misc/w_pkup.wav",
 		NULL,
 		0,
-		"models/weapons/v_blast/tris.md2",
-		"w_blaster",
+		//"models/weapons/v_blast/tris.md2",
+		//"models/weapons/v_shotg/tris.md2",
+		"models/weapons/v_hyperb/tris.md2",
+		"p_silencer",
 		"Sword",
 		0,
 		0,
@@ -1829,6 +1892,48 @@ gives +1 to maximum health
 		NULL,
 		0,
 /* precache */ ""
+	},
+
+	{
+		"item_power1",
+		Pickup_Power1,
+		NULL,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/adrenal/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"p_bandolier",
+		/* pickup */	"power1",
+		/* width */		2,
+		60,
+		NULL,
+		0,
+		0,
+		NULL,
+		0,
+		/* precache */ ""
+	},
+
+	{
+		"item_power2",
+		Pickup_Powerup,
+		Use_Power2,
+		NULL,
+		NULL,
+		"items/pkup.wav",
+		"models/items/adrenal/tris.md2", EF_ROTATE,
+		NULL,
+		/* icon */		"p_envirosuit",
+		/* pickup */	"power2",
+		/* width */		2,
+		60,
+		NULL,
+		0,
+		0,
+		NULL,
+		0,
+		/* precache */ ""
 	},
 
 /*QUAKED item_bandolier (.3 .3 1) (-16 -16 -16) (16 16 16)

@@ -822,7 +822,7 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 
 	radius = 10;
 
-	//if (is_quad)
+	if (is_quad)
 		damage *= 4;
 	AngleVectors (ent->client->v_angle, forward, right, NULL);
 	VectorSet(offset, 24, -5, ent->viewheight-8);
@@ -872,7 +872,7 @@ void Weapon_Blaster_Fire (edict_t *ent)
 
 void Weapon_Blaster (edict_t *ent)
 {
-	//changed this
+	gi.centerprintf(ent, "Not Sword\n");
 	static int	pause_frames[] = { 19, 32, 0 };
 	//static int	pause_frames[]	= { 10, 20, 10 };
 	static int	fire_frames[] = { 5, 0 };
@@ -1235,14 +1235,13 @@ void weapon_shotgun_fire (edict_t *ent)
 		if (!(ent->flags & FL_GODMODE))
 		{
 			//godmode off
-			gi.cprintf(ent, PRINT_HIGH, "Stopped Blocking\n");
+			gi.centerprintf(ent, "Stopped Blocking\n");
 		}
 		else
 		{
 			//godmode on
-			gi.cprintf(ent, PRINT_HIGH, "Currently Blocking\n");
+			gi.centerprintf(ent, "Currently Blocking\n");
 		}	
-
 	}
 
 	// send muzzle flash
@@ -1260,10 +1259,12 @@ void weapon_shotgun_fire (edict_t *ent)
 
 void Weapon_Shotgun (edict_t *ent)
 {
+	//gi.cprintf(ent, PRINT_HIGH,"Shield Currently Equipped\n");
 	static int	pause_frames[]	= {22, 28, 34, 0};
 	static int	fire_frames[]	= {8, 9, 0};
 
 	Weapon_Generic (ent, 7, 18, 36, 39, pause_frames, fire_frames, weapon_shotgun_fire);
+	gi.cprintf(ent, PRINT_LOW, "Shield Currently Equipped\n");
 }
 
 

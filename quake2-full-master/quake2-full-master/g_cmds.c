@@ -770,6 +770,25 @@ void Cmd_Wave_f (edict_t *ent)
 	}
 }
 
+//
+void Cmd_Power3_f(edict_t *ent)
+{
+	if (ent->client->powerable ^= 1)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Power3 Started\n");
+		ent->client->powertime = level.time + POWER3_ACTIVATE_TIME;
+		ent->client->powering = true;
+		ent->client->powerdrain = 0;
+	}
+	else
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Power3 Ended\n");
+		ent->svflags &= ~SVF_NOCLIENT;
+		ent->client->powering = false;
+	}
+}
+
+
 /*
 ==================
 Cmd_Say_f
@@ -890,7 +909,6 @@ void Cmd_PlayerList_f(edict_t *ent)
 	gi.cprintf(ent, PRINT_HIGH, "%s", text);
 }
 
-
 /*
 =================
 ClientCommand
@@ -978,6 +996,25 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else	// anything that doesn't match a command will be a chat
+	else if (Q_stricmp(cmd, "wave") == 0)
+		Cmd_Wave_f(ent);
+	else if (Q_stricmp(cmd, "Power3") == 0)
+	{
+		Cmd_Power3_f(ent);
+		/*
+		if (ent->svflags & SVF_NOCLIENT)
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Power3 Ended\n");
+			ent->svflags -= SVF_NOCLIENT;
+		}
+		else
+		{
+			gi.cprintf(ent, PRINT_HIGH, "Power3 Started\n");
+			ent->svflags |= SVF_NOCLIENT;
+		}
+		*/
+	}
+	else	
 		Cmd_Say_f (ent, false, true);
+
 }

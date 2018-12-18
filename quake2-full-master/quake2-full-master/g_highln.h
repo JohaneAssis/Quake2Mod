@@ -1,6 +1,6 @@
-#define SWORD_NORMAL_DAMAGE 1
-#define SWORD_DEATHMATCH_DAMAGE 150
-#define SWORD_KICK 500
+#define SWORD_NORMAL_DAMAGE 20
+#define SWORD_DEATHMATCH_DAMAGE 20
+#define SWORD_KICK 1200
 #define SWORD_RANGE 35
 
 void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick)
@@ -25,7 +25,11 @@ void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 		VectorMA(start, 8192, forward, end);
 	}
 	*/
-
+	/*if (!self->groundentity)
+	{
+		gi.cprintf(ent, PRINT_CHAT, "Sword Swung While Jumping\n");
+	}
+	*/
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
 	{
 		if (tr.fraction < 1.0)
@@ -66,6 +70,8 @@ void sword_attack(edict_t *ent, vec3_t g_offset, int damage)
 	ent->client->kick_angles[0] = -1;
 
 	fire_sword(ent, start, forward, damage, SWORD_KICK);
+
+	
 }
 
 void Weapon_Sword_Fire(edict_t *ent)
@@ -74,15 +80,16 @@ void Weapon_Sword_Fire(edict_t *ent)
 	if (deathmatch->value)
 		damage = SWORD_DEATHMATCH_DAMAGE;
 	else
-		damage = SWORD_NORMAL_DAMAGE;
+		damage = 20;
 	
 	sword_attack(ent, vec3_origin, damage);
 	ent->client->ps.gunframe++;
-	gi.cprintf(ent, PRINT_HIGH, "Sword Swung Normally\n");
+	//gi.cprintf(ent, PRINT_CHAT, "Sword Swung Normally\n");
 }
 
 void Weapon_Sword(edict_t *ent)
 {
+	gi.cprintf(ent, PRINT_LOW, "Sword Currently Equipped\n");
 	static int      pause_frames[] = { 19, 32, 0 };
 	static int      fire_frames[] = { 5, 0 };
 

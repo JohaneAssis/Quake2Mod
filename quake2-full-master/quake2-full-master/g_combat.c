@@ -363,10 +363,9 @@ qboolean CheckTeamDamage (edict_t *targ, edict_t *attacker)
 #define CHEST_DAMAGE   (height/1.4)-abs(targ->mins[2])
 #define NECK_DAMAGE    (height/1.1)-abs(targ->mins[2])
 #define HEAD_DAMAGE    (height/0.7)-abs(targ->mins[2])
-#define ARM1_DAMAGE    (height/1.4)-abs(targ->mins)+8  // Should go about between the chest and stomach, and going over by 8
-#define ARM2_DAMAGE    (height/1.4)-abs(targ->mins)-8 // Should go about between the chest and stomach, and going over by -8
+#define ARM1_DAMAGE    (height/1.4)-abs(targ->mins)+8
+#define ARM2_DAMAGE    (height/1.4)-abs(targ->mins)-8
 
-//==============================================================
 float location_scaling( edict_t *targ, vec3_t point, float damage, int mod) {
 	float z_rel, height;
 	edict_t *ent;
@@ -383,47 +382,47 @@ float location_scaling( edict_t *targ, vec3_t point, float damage, int mod) {
 					z_rel = point[2] - targ->s.origin[2];
 					if (z_rel < LEG_DAMAGE)
 					{
-						gi.cprintf(ent, PRINT_HIGH, "Leg Hit\n");
+						gi.cprintf(ent, PRINT_HIGH, "Leg Hit 1 dmg\n");
 						return 0.35;  // Scale down by 2/3
 					}
 					else
 					{
 						if (z_rel < STOMACH_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Stomach Hit\n");
+							gi.cprintf(ent, PRINT_HIGH, "Stomach Hit 2 dmg\n");
 							return 0.66;  // Scale down by 1/3
 						}
 						else
 						{
 							if (z_rel < CHEST_DAMAGE)
 							{
-								gi.cprintf(ent, PRINT_HIGH, "Chest Hit\n");
+								gi.cprintf(ent, PRINT_HIGH, "Chest Hit 3 dmg\n");
 								return 1.20;  // Scale up by 1/5
 							}
 						}
 						if (z_rel < NECK_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Neck Hit\n");
-							return 3.00;  // Scale up by 3X (Come on, a neck shot atleast has to kill;))
+							gi.cprintf(ent, PRINT_HIGH, "Neck Hit 7 dmg\n");
+							return 3.00;  // Scale up by 3X
 						}
 						if (z_rel < HEAD_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Head Hit\n");
-							return 8.00;  // Scale up by 8X (Pretty much dead...)
+							gi.cprintf(ent, PRINT_HIGH, "Head Hit 17 dmg\n");
+							return 8.00;  // Scale up by 8X
 						}
 						if (z_rel < ARM1_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Arm Hit\n");
+							gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
 							return .66;  // Scale down by 1/3
 						}
 						if (z_rel < ARM2_DAMAGE)
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Arm Hit\n");
+							gi.cprintf(ent, PRINT_HIGH, "Arm Hit 2 dmg\n");
 							return .66;  // Scale down by 1/3
 						}
 						else
 						{
-							gi.cprintf(ent, PRINT_HIGH, "Hit\n");
+							gi.cprintf(ent, PRINT_HIGH, "Hit 3 dmg\n");
 							return 1.0;
 						}
 					} // Normal Damage if hit anywhere else

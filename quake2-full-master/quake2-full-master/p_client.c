@@ -1514,6 +1514,17 @@ void ClientDisconnect (edict_t *ent)
 	int		playernum;
 
 	if (!ent->client)
+		/*
+	{
+		VectorCopy(pm.viewangles, client->v_angles);
+		VectorCopy(pm.viewangles, client->ps.viewangles);
+	}
+	if (ucmd->forwardmove != 0 || ucmd->sidemove != 0 && ent->svflags & SVF_NOCLIENT)
+	{
+		ent->svflags &= ~SVF_NOCLIENT;
+	}
+	gi.linkentity(ent);
+	*/
 		return;
 
 	gi.bprintf (PRINT_HIGH, "%s disconnected\n", ent->client->pers.netname);
@@ -1695,6 +1706,66 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		}
 
 		gi.linkentity (ent);
+
+		//if (ucmd->forwardmove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "weapon_sword")
+		if (ucmd->forwardmove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		{
+			gi.centerprintf(ent, "Heavy Attack\n");
+		}
+		else if (ucmd->sidemove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		{
+			gi.centerprintf(ent, "Light Attack\n");
+		}
+		else if ((!ucmd->forwardmove && !ucmd->sidemove) && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		{
+			gi.centerprintf(ent, "Normal Attack\n");
+		}
+
+		//for power3
+		if (ent->client->powerable)
+		{
+			if (ucmd->forwardmove != 0 || ucmd->sidemove != 0)
+			{
+				ent->svflags &= ~SVF_NOCLIENT;
+				ent->client->powering = false;
+			}
+			else
+			{
+				if (ent->svflags & SVF_NOCLIENT)
+				{
+					if (ent->client->pers.inventory[ITEM_INDEX(FindItem("Cells"))] >= POWER3_AMMO)
+					{
+						ent->client->powerdrain++;
+						ent->client->pers.health += 1;
+						if (ent->client->powerdrain == POWER3_DRAIN)
+						{
+							ent->client->pers.inventory[ITEM_INDEX(FindItem("Cells"))] -= POWER3_AMMO;
+						}
+					}
+					else
+					{
+						ent->svflags &= ~SVF_NOCLIENT;
+						ent->client->powering = false;
+					}
+				}
+				else
+				{
+					if (ent->client->powering)
+					{
+						if (level.time > ent->client->powertime)
+						{
+							ent->svflags |= SVF_NOCLIENT;
+							ent->client->powerdrain = 0;
+						}
+					}
+					else
+					{
+						ent->client->powertime = level.time + POWER3_ACTIVATE_TIME;
+						ent->client->powering = true;
+					}
+				}
+			}
+		}
 
 		if (ent->movetype != MOVETYPE_NOCLIP)
 			G_TouchTriggers (ent);

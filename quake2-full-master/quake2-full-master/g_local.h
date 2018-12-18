@@ -655,6 +655,10 @@ void T_RadiusDamage (edict_t *inflictor, edict_t *attacker, float damage, edict_
 #define DEFAULT_SHOTGUN_COUNT	12
 #define DEFAULT_SSHOTGUN_COUNT	20
 
+#define POWER3_ACTIVATE_TIME	1.5
+#define POWER3_DRAIN			0.2
+#define POWER3_AMMO				0.1
+
 //
 // g_monster.c
 //
@@ -942,6 +946,11 @@ struct gclient_s
 
 	edict_t		*chase_target;		// player we are chasing
 	qboolean	update_chase;		// need to update chase info?
+
+	qboolean powerable;
+	qboolean powering;
+	float powertime;
+	int powerdrain;
 };
 
 
