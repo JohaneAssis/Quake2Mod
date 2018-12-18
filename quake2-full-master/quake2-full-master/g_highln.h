@@ -16,20 +16,6 @@ void fire_sword(edict_t *self, vec3_t start, vec3_t aimdir, int damage, int kick
 	VectorMA(start, SWORD_RANGE, aimdir, end);
 	tr = gi.trace(self->s.origin, NULL, NULL, end, self, MASK_SHOT);
 
-	/*
-	if (!(tr.fraction < 1.0))
-	{
-		vectoangles(aimdir, dir);
-		AngleVectors(dir, forward, right, up);
-
-		VectorMA(start, 8192, forward, end);
-	}
-	*/
-	/*if (!self->groundentity)
-	{
-		gi.cprintf(ent, PRINT_CHAT, "Sword Swung While Jumping\n");
-	}
-	*/
 	if (!((tr.surface) && (tr.surface->flags & SURF_SKY)))
 	{
 		if (tr.fraction < 1.0)
