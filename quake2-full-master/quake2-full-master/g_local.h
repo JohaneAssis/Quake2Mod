@@ -656,8 +656,12 @@ void T_RadiusDamage (edict_t *inflictor, edict_t *attacker, float damage, edict_
 #define DEFAULT_SSHOTGUN_COUNT	20
 
 #define POWER3_ACTIVATE_TIME	1.5
-#define POWER3_DRAIN			0.2
-#define POWER3_AMMO				0.1
+#define POWER3_DRAIN			1
+#define POWER3_AMMO				1
+
+#define POWER4_ACTIVATE_TIME	0.5
+#define POWER4_DRAIN			1
+#define POWER4_AMMO				1
 
 //
 // g_monster.c
@@ -951,6 +955,11 @@ struct gclient_s
 	qboolean powering;
 	float powertime;
 	int powerdrain;
+
+	qboolean powerable2;
+	qboolean powering2;
+	float powertime2;
+	int powerdrain2;
 };
 
 
@@ -1101,9 +1110,7 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
-
-	float poisonExTime;
-	float poisonExStrength;
-	edict_t* poisonerEx;
+	
+	int SpeedM;
 };
 

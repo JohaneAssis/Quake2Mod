@@ -788,6 +788,24 @@ void Cmd_Power3_f(edict_t *ent)
 	}
 }
 
+//
+void Cmd_Power4_f(edict_t *ent)
+{
+	if (ent->client->powerable2 ^= 1)
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Power4 Started\n");
+		ent->client->powertime2 = level.time + POWER4_ACTIVATE_TIME;
+		ent->client->powering2 = true;
+		ent->client->powerdrain2 = 0;
+	}
+	else
+	{
+		gi.cprintf(ent, PRINT_HIGH, "Power4 Ended\n");
+		ent->svflags &= ~SVF_NOCLIENT;
+		ent->client->powering2 = false;
+	}
+}
+
 
 /*
 ==================
@@ -996,23 +1014,13 @@ void ClientCommand (edict_t *ent)
 		Cmd_Wave_f (ent);
 	else if (Q_stricmp(cmd, "playerlist") == 0)
 		Cmd_PlayerList_f(ent);
-	else if (Q_stricmp(cmd, "wave") == 0)
-		Cmd_Wave_f(ent);
 	else if (Q_stricmp(cmd, "Power3") == 0)
 	{
 		Cmd_Power3_f(ent);
-		/*
-		if (ent->svflags & SVF_NOCLIENT)
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Power3 Ended\n");
-			ent->svflags -= SVF_NOCLIENT;
-		}
-		else
-		{
-			gi.cprintf(ent, PRINT_HIGH, "Power3 Started\n");
-			ent->svflags |= SVF_NOCLIENT;
-		}
-		*/
+	}
+	else if (Q_stricmp(cmd, "Power4") == 0)
+	{
+		Cmd_Power4_f(ent);
 	}
 	else	
 		Cmd_Say_f (ent, false, true);

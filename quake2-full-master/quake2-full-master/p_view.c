@@ -424,6 +424,11 @@ void SV_CalcBlend (edict_t *ent)
 	{
 		SV_AddBlend(-1, -1, -1, 0.3, ent->client->ps.blend);
 	}
+	if (ent->client->powerable2 && (ent->svflags & SVF_NOCLIENT))
+	{
+		SV_AddBlend(0, 1, -1, 0.05, ent->client->ps.blend);
+	}
+
 	if (ent->client->pers.weapon->pickup_name == "Shotgun")
 	{
 		SV_AddBlend(-1, 0, 1, 0.05, ent->client->ps.blend);

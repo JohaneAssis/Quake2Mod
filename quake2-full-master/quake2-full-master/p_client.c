@@ -1577,6 +1577,66 @@ usually be a couple times for each server frame.
 */
 void ClientThink (edict_t *ent, usercmd_t *ucmd)
 {
+	int index = ITEM_INDEX(FindItem("Power2"));
+	int letsCheck = ent->client->pers.inventory[index];
+	
+	if (letsCheck != NULL)
+	{
+		float SpeedModifer, t;
+		vec3_t velo;
+		vec3_t  end, forward, right, up, add;
+		SpeedModifer = ent->SpeedM * 100;
+		VectorClear(velo);
+		AngleVectors(ent->client->v_angle, forward, right, up);
+		VectorScale(forward, ucmd->forwardmove*SpeedModifer, end);
+		VectorAdd(end, velo, velo);
+		AngleVectors(ent->client->v_angle, forward, right, up);
+		VectorScale(right, ucmd->sidemove*SpeedModifer, end);
+		VectorAdd(end, velo, velo);
+		if (ent->waterlevel == 0)
+			velo[2] = 0;
+		if (ent->client->pers.weapon->pickup_name == "Sword")
+		{
+			velo[0] *= 1;
+			velo[1] *= 1;
+			velo[2] *= 1;
+			SpeedModifer *= 1;
+		}
+		else if (ent->client->pers.weapon->pickup_name == "Blaster")
+		{
+			velo[0] *= 0.75;
+			velo[1] *= 0.75;
+			velo[2] *= 0.75;
+			SpeedModifer *= 0.75;
+		}
+		else if (ent->client->pers.weapon->pickup_name == "Shotgun")
+		{
+			velo[0] *= 0.5;
+			velo[1] *= 0.5;
+			velo[2] *= 0.5;
+			SpeedModifer *= 0.5;
+		}
+		if (ent->groundentity)
+			VectorAdd(velo, ent->velocity, ent->velocity);
+		else if (ent->waterlevel)
+			VectorAdd(velo, ent->velocity, ent->velocity);
+		else
+		{
+			velo[0] *= 0.25;
+			velo[1] *= 0.25;
+			velo[2] *= 0.25;
+			VectorAdd(velo, ent->velocity, ent->velocity);
+		}
+
+		t = VectorLength(ent->velocity);
+		if (t > 300 * SpeedModifer || t < -300 * SpeedModifer)
+		{
+			VectorScale(ent->velocity, 300 * SpeedModifer / t, ent->velocity);
+		}
+	}
+	
+
+
 	gclient_t	*client;
 	edict_t	*other;
 	int		i, j;
@@ -1594,18 +1654,6 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			level.exitintermission = true;
 		return;
 	}
-
-	/*
-	if (ent->poisonExStrength > 0){
-		if (ent->poisonExTime > 0){
-			ent->poisonExTime -= 0.1;
-		}
-		else{
-			ent->poisonExTime = 10;
-			T_Damage(ent, ent->poisonerEx, ent->poisonerEx, ent->s.origin, ent->s.origin, ent->s.origin, ent->poisonExStrength, 0, 0, MOD_POSION);
-		}
-	}
-	*/
 
 	pm_passent = ent;
 
@@ -1696,18 +1744,22 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 
 		gi.linkentity (ent);
 
-		//if (ucmd->forwardmove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "weapon_sword")
-		if (ucmd->forwardmove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		if (ucmd->forwardmove && (ucmd->buttons & BUTTON_ATTACK) && (ent->client->pers.weapon->pickup_name == "Sword"))
 		{
 			gi.centerprintf(ent, "Heavy Attack\n");
 		}
-		else if (ucmd->sidemove && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		else if (ucmd->sidemove && (ucmd->buttons & BUTTON_ATTACK) && (ent->client->pers.weapon->pickup_name == "Sword"))
 		{
 			gi.centerprintf(ent, "Light Attack\n");
 		}
-		else if ((!ucmd->forwardmove && !ucmd->sidemove) && (ucmd->buttons & BUTTON_ATTACK) && ent->client->pers.weapon->pickup_name == "Sword")
+		else if ((!ucmd->forwardmove && !ucmd->sidemove) && (ucmd->buttons & BUTTON_ATTACK) && (ent->client->pers.weapon->pickup_name == "Sword"))
 		{
 			gi.centerprintf(ent, "Normal Attack\n");
+		}
+		//tried to do jumping attack notification, didn't work out
+		else if ((!ucmd->forwardmove && !ucmd->sidemove) && (ucmd->buttons & BUTTON_ATTACK) && (ent->client->pers.weapon->pickup_name == "Sword") && (pm.cmd.upmove >= 10))
+		{
+			gi.centerprintf(ent, "Jumping Attack\n");
 		}
 
 		//for power3
@@ -1722,13 +1774,14 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 			{
 				if (ent->svflags & SVF_NOCLIENT)
 				{
-					if (ent->client->pers.inventory[ITEM_INDEX(FindItem("Cells"))] >= POWER3_AMMO)
+					if (ent->client->pers.inventory[ITEM_INDEX(FindItem("Shells"))] >= POWER3_AMMO)
 					{
 						ent->client->powerdrain++;
 						ent->client->pers.health += 1;
 						if (ent->client->powerdrain == POWER3_DRAIN)
 						{
-							ent->client->pers.inventory[ITEM_INDEX(FindItem("Cells"))] -= POWER3_AMMO;
+							ent->client->pers.inventory[ITEM_INDEX(FindItem("Shells"))] += POWER3_AMMO;
+							ent->client->powerdrain = 0;
 						}
 					}
 					else
@@ -1751,6 +1804,53 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 					{
 						ent->client->powertime = level.time + POWER3_ACTIVATE_TIME;
 						ent->client->powering = true;
+					}
+				}
+			}
+		}
+
+		//for power4
+		if (ent->client->powerable2)
+		{
+			if (ucmd->forwardmove != 0 || ucmd->sidemove != 0)
+			{
+				ent->svflags &= ~SVF_NOCLIENT;
+				ent->client->powering2 = false;
+			}
+			else
+			{
+				if (ent->svflags & SVF_NOCLIENT)
+				{
+					if (ent->client->pers.inventory[ITEM_INDEX(FindItem("Shells"))] >= POWER4_AMMO)
+					{
+						ent->client->powerdrain2++;
+						if (ent->client->powerdrain2 == POWER4_DRAIN)
+						{
+							ent->client->pers.inventory[ITEM_INDEX(FindItem("Shells"))] -= POWER4_AMMO;
+							ent->client->pers.max_health -= 1;//tried to get health to drop here
+							ent->client->powerdrain2 = 0;
+						}
+					}
+					else
+					{
+						ent->svflags &= ~SVF_NOCLIENT;
+						ent->client->powering2 = false;
+					}
+				}
+				else
+				{
+					if (ent->client->powering2)
+					{
+						if (level.time > ent->client->powertime2)
+						{
+							ent->svflags |= SVF_NOCLIENT;
+							ent->client->powerdrain2 = 0;
+						}
+					}
+					else
+					{
+						ent->client->powertime2 = level.time + POWER4_ACTIVATE_TIME;
+						ent->client->powering2 = true;
 					}
 				}
 			}
